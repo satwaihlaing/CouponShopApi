@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Shop;
 use Illuminate\Http\Request;
+use Validator;
 
 class ShopController extends Controller
 {
@@ -14,12 +15,19 @@ class ShopController extends Controller
      */
     public function index(Request $request)
     {
-        $validator = $request->validate([
+        $validation = Validator::make($request->all(), [
             'name' => 'required|string',
             'limit' => 'nullable|integer',
             'offset' => 'nullable|integer',
         ]);
-        
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
+
         $shops = Shop::get();
         return response()->json([
             'success' => 1,
@@ -54,13 +62,21 @@ class ShopController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = $request->validate([
+        
+        $validation = Validator::make($request->all(), [
             'name' => 'nullable|string',
             'query' => 'nullable|string' ,
             'latitude' => 'nullable',
             'longitude' => 'nullable',
             'zoom' => 'nullable|string'
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $shop = Shop::create([
             'name' => $request->name,
@@ -89,9 +105,17 @@ class ShopController extends Controller
      */
     public function show(Request $request,$id)
     {
-        $validator = $request->validate([
+        
+        $validation = Validator::make($request->all(), [
             'id' => 'required|integer',
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $shop = Shop::find($id);
         if($shop){
@@ -141,7 +165,7 @@ class ShopController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = $request->validate([
+        $validation = Validator::make($request->all(), [
             'id' => 'required|integer',
             'name' => 'nullable|string',
             'query' => 'nullable|string' ,
@@ -149,6 +173,13 @@ class ShopController extends Controller
             'longitude' => 'nullable',
             'zoom' => 'nullable|string'
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $shop = Shop::find($id);
         $shop->update([
@@ -167,9 +198,16 @@ class ShopController extends Controller
      */
     public function destroy(Request $request,$id)
     {
-        $validator = $request->validate([
+        $validation = Validator::make($request->all(), [
             'id' => 'required|integer',
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
         $shop = Shop::find($id);
 
         if(!$shop){

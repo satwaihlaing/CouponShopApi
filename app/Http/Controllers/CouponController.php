@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Coupon;
 use App\Shop;
+use Validator;
 
 class CouponController extends Controller
 {
@@ -15,11 +16,19 @@ class CouponController extends Controller
      */
     public function index(Request $request)
     {
-        $validator = $request->validate([
+        
+        $validation = Validator::make($request->all(), [
             'name' => 'required|string',
             'limit' => 'nullable|integer',
             'offset' => 'nullable|integer',
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $coupon = Coupon::get();
         return response()->json([
@@ -54,7 +63,7 @@ class CouponController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = $request->validate([
+        $validation = Validator::make($request->all(), [
             'name' => 'required|string',
             'description' => 'nullable|string',
             'discount_type' => 'required|in:percentage,fix-amount',
@@ -66,6 +75,13 @@ class CouponController extends Controller
             'coupon_type' => 'required|in:public,private',
             'used_count' => 'nullable|image',
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $coupon = Coupon::create([
             "name" => $request->name,
@@ -100,9 +116,16 @@ class CouponController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $validator = $request->validate([
+        $validation = Validator::make($request->all(), [
             'id' => 'required|integer',
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $coupon = Coupon::find($id);
         if ($coupon) {
@@ -152,7 +175,7 @@ class CouponController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = $request->validate([
+        $validation = Validator::make($request->all(), [
             'name' => 'required|string',
             'description' => 'nullable|string',
             'discount_type' => 'required|in:percentage,fix-amount',
@@ -162,8 +185,15 @@ class CouponController extends Controller
             'start_datetime' => 'nullable',
             'end_datetime' => 'nullable',
             'coupon_type' => 'required|in:public,private',
-            'used_count' => 'nullable|image',
+            'used_count' => 'nullable|integer',
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $coupon = Coupon::find($id);
 
@@ -215,9 +245,16 @@ class CouponController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $validator = $request->validate([
+        $validation = Validator::make($request->all(), [
             'id' => 'required|integer',
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $coupon = Coupon::find($id);
         if (!$coupon) {
@@ -253,11 +290,18 @@ class CouponController extends Controller
     public function couponShop(Request $request, $id)
     {
 
-        $validator = $request->validate([
+        $validation = Validator::make($request->all(), [
             'coupon_id' => 'required|integer',
             'limit' => 'nullable|integer',
             'offset' => 'nullable|integer',
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $coupon = Coupon::with('shops')->find($request->coupon_id);
 
@@ -278,11 +322,17 @@ class CouponController extends Controller
 
     public function couponShopFilter(Request $request)
     {
-        $validator = $request->validate([
+        $validation = Validator::make($request->all(), [
             'coupon_id' => 'required|integer',
             'shop_id' => 'required|integer',
-
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $shop_id = $request->shop_id;
         $couponshop = Coupon::with(['shops' => function ($query) use ($shop_id) {
@@ -302,11 +352,18 @@ class CouponController extends Controller
     }
 
     public function CreateCuponShop(Request $request){
-        $validator = $request->validate([
+
+        $validation = Validator::make($request->all(), [
             'coupon_id' => 'required|integer',
             'shop_id' => 'required|integer',
-
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
         
         $shop_id = $request->shop_id;
         $coupon = Coupon::find($request->coupon_id);
@@ -364,10 +421,18 @@ class CouponController extends Controller
     }
 
     public function deleteCouponShop(Request $request){
-        $validator = $request->validate([
+        
+        $validation = Validator::make($request->all(), [
             'coupon_id' => 'required|integer',
             'id' => 'required|integer',
         ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validation->getMessageBag()->first(),
+            ], 200);
+        }
 
         $coupon = Coupon::find($request->coupon_id);
         $coupon->shops()->detach($request->id);
